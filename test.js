@@ -1,8 +1,26 @@
 var preview = require("./index.js"),
 	assert = require("assert");
 
-var input = [ "http://www.cnn.com", "http://www.google.com", "http://www.yahoo.com", "https://new.myspace.com", "http://www.huffingtonpost.com/2012/11/15/israel-troops-gaza_n_2139151.html", "http://www.huffingtonpost.com/2012/11/15/petraeus-investigation_n_2140268.html", "http://www.huffingtonpost.com/2012/11/15/bp-criminal-settlement-gulf-spill_n_2140162.html", "http://health.yahoo.net/articles/nutrition/photos/12-fish-stay-away#0", "http://www.bbc.co.uk/news/world-middle-east-20349280", "http://www.bbc.co.uk/sport/0/football/20341219", "https://httpsnow.org/", "http://www.hollywoodreporter.com/sites/default/files/2012/10/penguin_books_random_house_a_l.jpg", "http://www.cricinfo.com", "http://www.satheeshnatesan.com", "http://www.theatlanticwire.com/entertainment/2012/12/new-music-genres-2012/59680/", "http://www.vimeo.com/33883554#", "http://www.youtube.com/watch?v=W_H_RS4M0jk" ]
-
+var input = [
+	"http://www.cnn.com",
+	"http://www.google.com",
+	// "http://www.yahoo.com",
+	// "https://new.myspace.com",
+	// "http://www.huffingtonpost.com/2012/11/15/israel-troops-gaza_n_2139151.html",
+	// "http://www.huffingtonpost.com/2012/11/15/petraeus-investigation_n_2140268.html",
+	"http://www.huffingtonpost.com/2012/11/15/bp-criminal-settlement-gulf-spill_n_2140162.html",
+	"http://health.yahoo.net/articles/nutrition/photos/12-fish-stay-away#0",
+	"http://www.bbc.co.uk/news/world-middle-east-20349280",
+	"http://www.bbc.co.uk/sport/0/football/20341219",
+	"https://httpsnow.org/",
+	"http://www.hollywoodreporter.com/sites/default/files/2012/10/penguin_books_random_house_a_l.jpg",
+	"http://www.cricinfo.com",
+	"http://www.satheeshnatesan.com",
+	"http://www.theatlanticwire.com/entertainment/2012/12/new-music-genres-2012/59680/",
+	"https://vimeo.com/183214201",
+	"https://www.youtube.com/watch?v=Y5cSGxdDHz4&feature=relmfu",
+	// "http://www.news.com.au/sport/motorsport/formula-one/sebastian-vettel-forced-to-admit-the-error-of-his-ways-in-baku/news-story/1e5c40adea952911a103d06d27c879b9"
+];
 
 input.forEach(function(val) {
 	preview(val, function(err, data) {

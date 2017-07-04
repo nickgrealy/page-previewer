@@ -5,11 +5,13 @@ var request = require("request"),
 
 
 function getPreview(urlObj, callback) {
-	var url, proxy;
+	var url, proxy, debug, headers;
 
 	if(typeof(urlObj) === "object") {
 		url = urlObj.url;
 		proxy = urlObj.proxy;
+		debug = urlObj.debug;
+		headers = urlObj.headers;
 	} else {
 		url = urlObj;
 	}
@@ -17,8 +19,17 @@ function getPreview(urlObj, callback) {
 	var req = request( {
 		uri: url,
 		proxy: proxy,
-		timeout: 10000
+		timeout: 10000,
+		headers: headers
 	}, function(err, response, body) {
+		// ability to debug raw responses...
+		if (debug) {
+			if (err) {
+				console.log(err);
+			} else {
+				console.log(response);
+			}
+		}
 		if(!err && response.statusCode === 200 && body) {
 			callback(null, parseResponse(body, url));
 		} else {
