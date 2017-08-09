@@ -32,8 +32,27 @@ function getPreview(urlObj, callback) {
 		}
 		if(!err && response.statusCode === 200 && body) {
 			callback(null, parseResponse(body, url));
-		} else {
-			callback(null, createResponseData(url, true));
+		} else if (err) {
+			callback({
+				error: {
+					message: 'received an error response',
+					error: err,
+					responseStatusCode: response.statusCode
+				}}, createResponseData(url, true));
+		} else if (response.statusCode !== 200) {
+			callback({
+				error: {
+					message: 'status code ' + response.statusCode + ' did not match 200', 
+					error: err,
+					responseStatusCode: response.statusCode
+				}}, createResponseData(url, true));
+		} else if (!body) {
+			callback({
+				error: {
+					message: 'body was not present in the response', 
+					error: err,
+					responseStatusCode: response.statusCode
+				}}, createResponseData(url, true));
 		}
 	} );
 
