@@ -11,9 +11,39 @@ function getPreview(urlObj, callback) {
 		url = urlObj.url;
 		proxy = urlObj.proxy;
 		debug = urlObj.debug;
-		headers = urlObj.headers;
+		headers = urlObj.headers || {};
 	} else {
 		url = urlObj;
+	}
+
+
+	var youtubeIdRegex = /(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w]+)/;
+	var youtubeMatch = url.match(youtubeIdRegex);
+	if (youtubeMatch) {
+		var youtubeId = youtubeMatch[1];
+		var API_KEY = process.env.YOUTUBE_API_KEY
+		var REFERER = process.env.YOUTUBE_REFERER
+		if (typeof API_KEY === 'undefined' || API_KEY === null || API_KEY === '') {
+			callback({
+				error: {
+					message: 'Environment variable YOUTUBE_API_KEY must be set!',
+					error: 'YOUTUBE_API_KEY is null',
+					responseStatusCode: 500
+				}}, createResponseData(url, true));
+			return;
+		} else if (typeof REFERER === 'undefined' || REFERER === null || REFERER === '') {
+			callback({
+				error: {
+					message: 'Environment variable YOUTUBE_REFERER must be set!',
+					error: 'YOUTUBE_REFERER is null',
+					responseStatusCode: 500
+				}}, createResponseData(url, true));
+			return;
+		} else {
+			url = "https://www.googleapis.com/youtube/v3/videos?part=snippet&id=" + encodeURIComponent(youtubeId) + "&key=" + encodeURIComponent(API_KEY);
+			headers.Referer = REFERER;
+			console.log('Invoking url: ' + url + ' - with headers:', headers);
+		}
 	}
 
 	var req = request( {
@@ -31,7 +61,27 @@ function getPreview(urlObj, callback) {
 			}
 		}
 		if(!err && response && response.statusCode === 200 && body) {
-			callback(null, parseResponse(body, url));
+			if (youtubeMatch) {
+				var jsonbody = JSON.parse(body);
+				callback(null, {
+					"url": url,
+					"loadFailed": false,
+					"title": jsonbody.items[0].snippet.title,
+					"description": jsonbody.items[0].snippet.description,
+					"contentType": "text/html",
+					"mediaType": "website",
+					"images": [
+						jsonbody.items[0].snippet.thumbnails.default.url,
+						jsonbody.items[0].snippet.thumbnails.medium.url,
+						jsonbody.items[0].snippet.thumbnails.high.url,
+						jsonbody.items[0].snippet.thumbnails.standard.url,
+						jsonbody.items[0].snippet.thumbnails.maxres.url,
+					]
+				});
+				return;
+			} else {
+				callback(null, parseResponse(body, url));
+			}
 		} else if (err) {
 			callback({
 				error: {
@@ -58,9 +108,14 @@ function getPreview(urlObj, callback) {
 
 	req.on("response", function(res) {
 		var contentType = res.headers["content-type"];
-		if(contentType && contentType.indexOf("text/html") !== 0) {
-			req.abort();
-			callback(null, parseMediaResponse(res, contentType, url) );
+		if(contentType) {
+			var isHtml = contentType.indexOf("text/html") === 0;
+			var isJson = contentType.indexOf("application/json") === 0;
+			var isValid = youtubeMatch ? isJson : isHtml;
+			if (!isValid) {
+				req.abort();
+				callback(null, parseMediaResponse(res, contentType, url) );
+			}
 		}
 	});
 }
